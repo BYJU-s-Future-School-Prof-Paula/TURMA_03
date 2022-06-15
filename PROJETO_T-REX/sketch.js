@@ -4,6 +4,14 @@ var nuvemImg;
 var numAleat;
 var cactoimg1, cactoimg2, cactoimg3;
 var cactoimg4, cactoimg5, cactoimg6;
+var pontos = 0;
+var gameOver, restart;
+var gameOverImg, restartImg;
+
+
+var JOGANDO = 1;
+var PERDEU = 0;
+var estado = JOGANDO;
 
 // Funçao para carregar os arquivos que vao ser usados
 function preload() {
@@ -16,6 +24,9 @@ function preload() {
   cactoimg4 = loadImage("obstacle4.png");
   cactoimg5 = loadImage("obstacle5.png");
   cactoimg6 = loadImage("obstacle6.png");
+
+  gameOverImg = loadImage("gameOver.png");
+  restartImg = loadImage("restart.png");
 }
 
 // Função que vai ser executada apenas uma vez
@@ -37,23 +48,47 @@ function setup(){
   chaoInvisivel = createSprite(300,190,600,10);
   chaoInvisivel.visible = false;
 
+  // cria os sprites de fim de jogo
+  gameOver = createSprite(300,80);
+  gameOver.addImage(gameOverImg);
+  gameOver.scale = 0.8;
+  gameOver.visible = false;
 
+  restart = createSprite(300,120);
+  restart.addImage(restartImg);
+  restart.scale = 0.5;
+  restart.visible = false;
 }
 
+// Função que vai ser executada em loop
 function draw(){
   background("white");
-  numAleat = Math.round(random(10,100));
   
+  if(estado === JOGANDO){
+    numAleat = Math.round(random(10,100));
+
+    pular();
+    criaNuvens();
+    criaObstaculos();
+    pontuacao();
+    infinity();
+
+    // trex colide com o chao (nao cai)
+    trex.collide(chaoInvisivel);
+    
+  }
+
+  if(estado === PERDEU){
+    chao.velocityX = 0;
+    trex.velocityX = 0;
+    trex.velocityY = 0;
+
+    gameOver.visible = true;
+    restart.visible = true;
+
+  }
+
   drawSprites();
-
-  pular();
-  infinity();
-  criaNuvens();
-  criaObstaculos();
-
-  // trex colide com o chao (nao cai)
-  trex.collide(chaoInvisivel);
-
 }
 
 // funcao que permite o dino a pular
@@ -118,4 +153,10 @@ function criaObstaculos() {
       default: break;
     }
   }
+}
+
+// funcao que calcula e exibe a pontuação
+function pontuacao() {
+  text("PONTUAÇÃO: " + pontos, 400,50);
+  pontos = pontos + Math.round(frameCount/60);
 }
