@@ -1,4 +1,4 @@
-var trex, trexCorrendo;
+var trex, trexCorrendo, trexMorto;
 var chao, chaoImagem, chaoInvisivel;
 var nuvemImg;
 var numAleat;
@@ -7,7 +7,7 @@ var cactoimg4, cactoimg5, cactoimg6;
 var pontos = 0;
 var gameOver, restart;
 var gameOverImg, restartImg;
-
+var grupocactos, gruponuvens;
 
 var JOGANDO = 1;
 var PERDEU = 0;
@@ -16,6 +16,7 @@ var estado = JOGANDO;
 // Funçao para carregar os arquivos que vao ser usados
 function preload() {
   trexCorrendo = loadAnimation("trex1.png","trex3.png","trex4.png");
+  trexMorto = loadAnimation("trex_collided.png");
   chaoImagem = loadImage("ground2.png");
   nuvemImg = loadImage("cloud.png");
   cactoimg1 = loadImage("obstacle1.png");
@@ -32,11 +33,16 @@ function preload() {
 // Função que vai ser executada apenas uma vez
 function setup(){
   createCanvas(600,200);
+  
+  // cria os grupos
+  grupocactos = new Group();
+  gruponuvens = new Group();
 
   //cria os sprites e os configura
   trex = createSprite(50,150,20,50);
                       //texto sobre a animaçao , variavel da img
   trex.addAnimation("trex quando está correndo", trexCorrendo);
+  trex.addAnimation("trex quando morreu", trexMorto);
   trex.scale = 0.5;
   trex.depth = 2;
 
@@ -63,6 +69,11 @@ function setup(){
 // Função que vai ser executada em loop
 function draw(){
   background("white");
+
+  // verifica se perdeu
+  if(trex.isTouching(grupocactos)){
+    estado = PERDEU;
+  }
   
   if(estado === JOGANDO){
     numAleat = Math.round(random(10,100));
@@ -82,9 +93,14 @@ function draw(){
     chao.velocityX = 0;
     trex.velocityX = 0;
     trex.velocityY = 0;
+    grupocactos.setVelocityXEach(0);
+    gruponuvens.setVelocityXEach(0);
 
     gameOver.visible = true;
     restart.visible = true;
+
+    trex.changeAnimation("trex quando morreu");
+
 
   }
 
@@ -116,6 +132,7 @@ function criaNuvens() {
     nuvem.scale = 0.7;
     nuvem.depth = 1;
     nuvem.lifetime = 650;
+    gruponuvens.add(nuvem);
   }
 }
 
@@ -152,6 +169,7 @@ function criaObstaculos() {
 
       default: break;
     }
+    grupocactos.add(cacto);
   }
 }
 
